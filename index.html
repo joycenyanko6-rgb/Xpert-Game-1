@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Xpert Game</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #111, #292929);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .game {
+      width: 100%;
+      max-width: 500px;
+      background: #181818;
+      border-radius: 20px;
+      padding: 25px;
+      text-align: center;
+      box-shadow: 0 0 30px rgba(0,0,0,.6);
+    }
+
+    h1 {
+      font-size: 36px;
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+      color: #aaa;
+      margin-bottom: 25px;
+    }
+
+    .balance {
+      background: #252525;
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 25px;
+    }
+
+    .lock {
+      font-size: 80px;
+      margin: 20px 0;
+    }
+
+    .keys {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin: 25px 0;
+    }
+
+    .key {
+      width: 90px;
+      height: 90px;
+      border: none;
+      border-radius: 15px;
+      background: #333;
+      color: white;
+      font-size: 40px;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .key:hover {
+      transform: scale(1.05);
+      background: #444;
+    }
+
+    .key:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin: 8px 0;
+      border-radius: 10px;
+      border: none;
+      font-size: 16px;
+    }
+
+    button.main {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 10px;
+      background: #f5c400;
+      color: #111;
+      font-weight: bold;
+      font-size: 17px;
+      cursor: pointer;
+    }
+
+    #message {
+      min-height: 30px;
+      margin: 15px 0;
+      font-weight: bold;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .master {
+      margin-top: 30px;
+      border-top: 1px solid #333;
+      padding-top: 20px;
+    }
+
+    .master h2 {
+      margin-bottom: 10px;
+    }
+
+    .info {
+      color: #aaa;
+      font-size: 14px;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="game">
+
+  <h1>🔐 XPERT</h1>
+  <p class="subtitle">Find the correct key</p>
+
+  <div class="balance">
+    Balance: <strong id="balance">100</strong> points
+  </div>
+
+  <div class="lock">🔒</div>
+
+  <p>Select one of the three keys:</p>
+
+  <div class="keys">
+    <button class="key" onclick="chooseKey(0)">🔑</button>
+    <button class="key" onclick="chooseKey(1)">🔑</button>
+    <button class="key" onclick="chooseKey(2)">🔑</button>
+  </div>
+
+  <div id="message"></div>
+
+  <button class="main" onclick="newRound()">
+    NEW ROUND
+  </button>
+
+  <div class="master">
+
+    <h2>Master Login</h2>
+
+    <input
+      type="password"
+      id="masterPassword"
+      placeholder="Master password"
+    >
+
+    <button class="main" onclick="masterLogin()">
+      LOGIN AS MASTER
+    </button>
+
+    <div id="masterPanel" class="hidden">
+
+      <p style="margin-top:20px;">
+        Master Panel
+      </p>
+
+      <input
+        type="number"
+        id="newBalance"
+        placeholder="Set player balance"
+      >
+
+      <button class="main" onclick="setBalance()">
+        SET BALANCE
+      </button>
+
+      <p class="info">
+        Master can control the game settings.
+      </p>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+  let balance = 100;
+
+  // Random correct key: 0, 1 or 2
+  let correctKey = Math.floor(Math.random() * 3);
+
+  let roundFinished = false;
+
+  function chooseKey(key) {
+
+    if (roundFinished) {
+      document.getElementById("message").textContent =
+        "Start a new round first.";
+      return;
+    }
+
+    roundFinished = true;
+
+    const buttons = document.querySelectorAll(".key");
+
+    buttons.forEach(button => {
+      button.disabled = true;
+    });
+
+    if (key === correctKey) {
+
+      balance += 20;
+
+      document.getElementById("balance").textContent = balance;
+
+      document.getElementById("message").textContent =
+        "🎉 CORRECT KEY! You won 20 points.";
+
+    } else {
+
+      balance -= 10;
+
+      document.getElementById("balance").textContent = balance;
+
+      document.getElementById("message").textContent =
+        "❌ Wrong key. You lost 10 points.";
+
+    }
+  }
+
+  function newRound() {
+
+    correctKey = Math.floor(Math.random() * 3);
+
+    roundFinished = false;
+
+    document.getElementById("message").textContent =
+      "Choose a key!";
+
+    const buttons = document.querySelectorAll(".key");
+
+    buttons.forEach(button => {
+      button.disabled = false;
+    });
+  }
+
+  function masterLogin() {
+
+    const password =
+      document.getElementById("masterPassword").value;
+
+    // Change this password later
+    if (password === "Xpert123") {
+
+      document.getElementById("masterPanel")
+        .classList.remove("hidden");
+
+      document.getElementById("message").textContent =
+        "✅ Master login successful.";
+
+    } else {
+
+      document.getElementById("message").textContent =
+        "❌ Incorrect master password.";
+
+    }
+  }
+
+  function setBalance() {
+
+    const value =
+      Number(document.getElementById("newBalance").value);
+
+    if (value >= 0) {
+
+      balance = value;
+
+      document.getElementById("balance").textContent =
+        balance;
+
+      document.getElementById("message").textContent =
+        "✅ Balance updated.";
+
+    }
+
+  }
+
+</script>
+
+</body>
+</html>
